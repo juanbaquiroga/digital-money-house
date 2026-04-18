@@ -8,17 +8,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuthStore } from "@/store/authStore";
-import api from "@/lib/axios";
+import { probeUserAction } from "@/actions/auth";
 
 const loginEmailSchema = z.object({
   email: z.string().email("Correo electrónico inválido"),
 });
 
 type LoginEmailFormValues = z.infer<typeof loginEmailSchema>;
-
-// fake password used only to probe user existence.
-// The API requires a non-empty password to validate the request
-const PROBE_PASSWORD = "_dmh_probe_!1A";
 
 export default function LoginEmailPage() {
   const router = useRouter();
@@ -35,27 +31,14 @@ export default function LoginEmailPage() {
 
   const onSubmit = async (data: LoginEmailFormValues) => {
     setApiError(null);
-    try {
-      // test login endpoint with dummy password
-      await api.post("/api/login", {
-        email: data.email,
-        password: PROBE_PASSWORD,
-      });
+
+    const result = await probeUserAction(data.email);
+
+    if (result.exists) {
       setLoginEmail(data.email);
       router.push("/login/password");
-    } catch (error: unknown) {
-      const status = (error as any).response?.status;
-
-      if (status === 404) {
-        // User doesn't exist
-        setApiError("No encontramos una cuenta con ese correo electrónico.");
-      } else if (status === 401 || status === 403) {
-        // User EXISTS
-        setLoginEmail(data.email);
-        router.push("/login/password");
-      } else {
-        setApiError("Ocurrió un error al verificar el correo. Intenta nuevamente.");
-      }
+    } else {
+      setApiError(result.error ?? "No encontramos una cuenta con ese correo electrónico.");
     }
   };
 

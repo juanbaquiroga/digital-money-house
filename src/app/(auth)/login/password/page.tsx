@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuthStore } from "@/store/authStore";
-import api from "@/lib/axios";
+import { loginAction } from "@/actions/auth";
 
 const loginPasswordSchema = z.object({
   password: z.string().min(6, "Usa entre 6 y 20 caracteres"),
@@ -37,17 +37,17 @@ export default function LoginPasswordPage() {
 
   const onSubmit = async (data: LoginPasswordFormValues) => {
     setApiError(null);
-    try {
-      const response = await api.post("/api/login", {
-        email: loginEmail,
-        password: data.password,
-      });
-      if (response.data.token) {
-        setToken(response.data.token);
-        router.push("/home");
-      }
-    } catch (error: unknown) {
-      setApiError("Contraseña incorrecta o el usuario no existe.");
+
+    if (!loginEmail) return;
+
+    const result = await loginAction(loginEmail, data.password);
+
+    if (result.success && result.token) {
+      // Store a copy of the token in Zustand for Axios interceptor
+      setToken(result.token);
+      router.push("/home");
+    } else {
+      setApiError(result.error ?? "Contraseña incorrecta.");
     }
   };
 

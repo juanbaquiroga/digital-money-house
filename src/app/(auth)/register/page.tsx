@@ -7,7 +7,7 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import api from "@/lib/axios";
+import { signupAction } from "@/actions/auth";
 
 const registerSchema = z.object({
   firstname: z.string().min(2, "El nombre es obligatorio"),
@@ -47,17 +47,15 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormValues) => {
     setApiError(null);
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { confirmPassword, ...payload } = data;
-      await api.post("/api/users", payload);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { confirmPassword, ...payload } = data;
+
+    const result = await signupAction(payload);
+
+    if (result.success) {
       setRegistered(true);
-    } catch (error: unknown) {
-      if ((error as any).response?.status === 409) {
-        setApiError("El usuario ya existe. Por favor, inicia sesión.");
-      } else {
-        setApiError("Ocurrió un error al registrar el usuario. Intenta nuevamente.");
-      }
+    } else {
+      setApiError(result.error ?? "Ocurrió un error al registrar el usuario.");
     }
   };
 
