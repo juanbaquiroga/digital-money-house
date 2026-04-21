@@ -11,21 +11,20 @@ import { Button } from "@/components/ui/Button";
 import { ArrowLeft } from "lucide-react";
 
 const newCardSchema = z.object({
-  number_id: z.preprocess(
-    (val) => Number(String(val).replace(/\s/g, "")),
-    z.number().min(1000000000000000, "Número de tarjeta inválido (mínimo 16 dígitos)")
-  ),
+  number_id: z.coerce
+    .number()
+    .min(1000000000000000, "Número de tarjeta inválido (mínimo 16 dígitos)"),
   first_last_name: z.string().min(2, "El nombre del titular es obligatorio"),
   expiration_date: z
     .string()
     .regex(/^\d{2}\/\d{4}$/, "Formato inválido. Usa MM/YYYY"),
-  cod: z.preprocess(
-    (val) => Number(val),
-    z.number().min(100, "CVV inválido").max(9999, "CVV inválido")
-  ),
+  cod: z.coerce
+    .number()
+    .min(100, "CVV inválido")
+    .max(9999, "CVV inválido"),
 });
 
-type NewCardFormValues = z.infer<typeof newCardSchema>;
+type NewCardFormValues = z.input<typeof newCardSchema>;
 
 // ── Card Preview Component ───────────────────────────────────────────────────
 function CardPreview({
@@ -147,9 +146,9 @@ export default function NewCardPage() {
 
     try {
       await cardService.createCard(account.id, {
-        number_id: data.number_id,
+        number_id: data.number_id as number,
         first_last_name: data.first_last_name,
-        cod: data.cod,
+        cod: data.cod as number,
         expiration_date: data.expiration_date,
       });
       setSuccess(true);

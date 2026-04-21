@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useProfileStore } from "@/store/profileStore";
 import { cardService } from "@/services/cardService";
 import { Card } from "@/types";
-import { ArrowLeft, ArrowRight, Plus } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 
 export default function CardsPage() {
   const { account } = useProfileStore();
@@ -53,8 +53,8 @@ export default function CardsPage() {
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6">
       {/* ── Breadcrumb ──────────────────────────────── */}
-      <div className="flex items-center gap-2 text-black">
-        <ArrowLeft className="w-5 h-5" />
+      <div className="flex items-center gap-2 text-black md:hidden">
+        <ArrowRight className="w-5 h-5" />
         <span className="font-medium text-lg">Tarjetas</span>
       </div>
 

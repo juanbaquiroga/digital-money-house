@@ -21,7 +21,7 @@ export default function HomePage() {
     .filter((tx) =>
       tx.description?.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    .slice(0, 5); // display only top 5
+    .slice(0, 5);
 
   if (isLoading || !account) {
     return (
@@ -42,6 +42,12 @@ export default function HomePage() {
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6">
+
+      {/* --- Breadcrumb (mobile/tablet only) --- */}
+      <div className="flex items-center gap-2 md:hidden">
+        <ArrowRight className="h-5 w-5 text-black" />
+        <span className="font-bold text-black text-lg">Inicio</span>
+      </div>
       
       {/* --- Balance Card --- */}
       <div className="bg-secondary-bg rounded-[1.25rem] p-6 sm:p-8 flex flex-col shadow-lg relative overflow-hidden">
@@ -68,12 +74,16 @@ export default function HomePage() {
       <div className="flex flex-col sm:flex-row gap-4 w-full">
         <Link href="/deposit" className="w-full">
           <Button className="w-full h-16 sm:h-20 text-xl sm:text-2xl rounded-[1.25rem] bg-primary text-black font-bold hover:bg-primary-hover shadow-md">
-            Cargar dinero
+            <span className="sm:hidden">Ingresar dinero</span>
+            <span className="hidden sm:inline md:hidden">Transferir dinero</span>
+            <span className="hidden md:inline">Cargar dinero</span>
           </Button>
         </Link>
         <Link href="/services" className="w-full">
           <Button className="w-full h-16 sm:h-20 text-xl sm:text-2xl rounded-[1.25rem] bg-primary text-black font-bold hover:bg-primary-hover shadow-md">
-            Pago de servicios
+            <span className="sm:hidden">Pago de servicios</span>
+            <span className="hidden sm:inline md:hidden">Pagar servicios</span>
+            <span className="hidden md:inline">Pago de servicios</span>
           </Button>
         </Link>
       </div>

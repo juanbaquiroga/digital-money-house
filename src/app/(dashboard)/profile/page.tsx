@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useProfileStore } from "@/store/profileStore";
 import { userService } from "@/services/userService";
-import { ArrowRight, Pencil, Copy, Check, ArrowLeft } from "lucide-react";
+import { ArrowRight, Pencil, Copy, Check } from "lucide-react";
 
 type EditingField = "name" | "dni" | "phone" | "password" | null;
 
@@ -162,8 +162,8 @@ export default function ProfilePage() {
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6">
       {/* ── Breadcrumb ──────────────────────────────── */}
-      <div className="flex items-center gap-2 text-black">
-        <ArrowLeft className="w-5 h-5" />
+      <div className="flex items-center gap-2 text-black md:hidden">
+        <ArrowRight className="w-5 h-5" />
         <span className="font-medium text-lg">Perfil</span>
       </div>
 

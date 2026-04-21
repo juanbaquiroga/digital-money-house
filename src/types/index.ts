@@ -50,3 +50,10 @@ export interface CardRequest {
   cod: number;
   expiration_date: string;
 }
+
+export interface TransferenceRequest {
+  amount: number;
+  dated: string;
+  destination: string;
+  origin: string;
+}
