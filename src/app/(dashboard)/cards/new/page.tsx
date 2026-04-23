@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,7 +8,9 @@ import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/store/profileStore";
 import { cardService } from "@/services/cardService";
 import { Button } from "@/components/ui/Button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
+
+const MAX_CARDS = 10;
 
 const newCardSchema = z.object({
   number_id: z.coerce
@@ -26,7 +28,39 @@ const newCardSchema = z.object({
 
 type NewCardFormValues = z.input<typeof newCardSchema>;
 
-// ── Card Preview Component ───────────────────────────────────────────────────
+type CardBrand = "visa" | "mastercard" | "amex" | "unknown";
+
+function detectCardBrand(number: string): CardBrand {
+  const digits = number.replace(/\D/g, "");
+  if (!digits) return "unknown";
+
+  if (/^3[47]/.test(digits)) return "amex";
+  
+  if (/^5[1-5]/.test(digits) || /^2[2-7]/.test(digits)) return "mastercard";
+  
+  if (/^4/.test(digits)) return "visa";
+
+  return "unknown";
+}
+
+function getBrandLabel(brand: CardBrand): string {
+  switch (brand) {
+    case "visa": return "VISA";
+    case "mastercard": return "MASTERCARD";
+    case "amex": return "AMEX";
+    default: return "";
+  }
+}
+
+function getBrandColor(brand: CardBrand): string {
+  switch (brand) {
+    case "visa": return "text-white";
+    case "mastercard": return "text-orange-400";
+    case "amex": return "text-blue-400";
+    default: return "text-zinc-400";
+  }
+}
+
 function CardPreview({
   number,
   name,
@@ -37,18 +71,11 @@ function CardPreview({
   expiry: string;
 }) {
   const hasData = number.length > 0 || name.length > 0 || expiry.length > 0;
+  const brand = detectCardBrand(number);
 
-  // Format card number into 4-digit groups
   const formatNumber = (raw: string) => {
     const digits = raw.replace(/\D/g, "").slice(0, 16);
-    const groups = [];
-    for (let i = 0; i < 4; i++) {
-      const chunk = digits.slice(i * 4, (i + 1) * 4);
-      groups.push(chunk.padEnd(4, "*").replace(/\*/g, hasData && chunk.length > 0 ? "0" : "*"));
-    }
-    // If no data at all, show **** for each group
     if (!digits) return ["****", "****", "****", "****"];
-    // pad remaining groups with ****
     const result: string[] = [];
     for (let i = 0; i < 4; i++) {
       const chunk = digits.slice(i * 4, (i + 1) * 4);
@@ -67,23 +94,21 @@ function CardPreview({
           : "bg-gradient-to-br from-zinc-200 via-zinc-300 to-zinc-200 shadow-md"
       }`}
     >
-      {/* Chip + Brand */}
-      <div className="flex justify-end">
+      
+      <div className="flex justify-between items-start">
         <div
           className={`w-10 h-7 rounded-sm ${
             hasData ? "bg-zinc-600" : "bg-zinc-400/60"
           }`}
         />
+        
+        {hasData && brand !== "unknown" && (
+          <span className={`font-bold text-lg italic tracking-wider ${getBrandColor(brand)}`}>
+            {getBrandLabel(brand)}
+          </span>
+        )}
       </div>
 
-      {/* Visa brand (only when has data) */}
-      {hasData && (
-        <span className="absolute top-4 right-5 text-white font-bold text-lg italic tracking-wider">
-          VISA
-        </span>
-      )}
-
-      {/* Card Number */}
       <div className="flex gap-3 sm:gap-5">
         {numberGroups.map((group, i) => (
           <span
@@ -97,7 +122,6 @@ function CardPreview({
         ))}
       </div>
 
-      {/* Name + Expiry */}
       <div className="flex items-end justify-between">
         <span
           className={`text-xs sm:text-sm font-semibold tracking-wide uppercase ${
@@ -118,14 +142,14 @@ function CardPreview({
   );
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
 export default function NewCardPage() {
   const router = useRouter();
   const { account } = useProfileStore();
   const [apiError, setApiError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [cardCount, setCardCount] = useState<number>(0);
+  const [loadingCount, setLoadingCount] = useState(true);
 
-  // Live preview state
   const [liveNumber, setLiveNumber] = useState("");
   const [liveName, setLiveName] = useState("");
   const [liveExpiry, setLiveExpiry] = useState("");
@@ -139,10 +163,34 @@ export default function NewCardPage() {
   });
 
   const hasAnyInput = liveNumber.length > 0 || liveName.length > 0 || liveExpiry.length > 0;
+  const isAtLimit = cardCount >= MAX_CARDS;
+
+  const fetchCardCount = useCallback(async () => {
+    if (!account) return;
+    setLoadingCount(true);
+    try {
+      const cards = await cardService.getCards(account.id);
+      setCardCount(cards.length);
+    } catch {
+      
+      setCardCount(0);
+    } finally {
+      setLoadingCount(false);
+    }
+  }, [account]);
+
+  useEffect(() => {
+    fetchCardCount();
+  }, [fetchCardCount]);
 
   const onSubmit = async (data: NewCardFormValues) => {
     if (!account) return;
     setApiError(null);
+
+    if (isAtLimit) {
+      setApiError(`Ya tenés el máximo de ${MAX_CARDS} tarjetas. Eliminá una para agregar otra.`);
+      return;
+    }
 
     try {
       await cardService.createCard(account.id, {
@@ -162,7 +210,6 @@ export default function NewCardPage() {
     }
   };
 
-  // ── Success Screen ───────────────────────────────────────────────────────
   if (success) {
     return (
       <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6 items-center justify-center">
@@ -198,7 +245,7 @@ export default function NewCardPage() {
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-3xl mx-auto gap-6">
-      {/* ── Breadcrumb ──────────────────────────────── */}
+      
       <button
         onClick={() => router.push("/cards")}
         className="flex items-center gap-2 text-black hover:text-primary transition-colors self-start"
@@ -207,15 +254,33 @@ export default function NewCardPage() {
         <span className="font-medium text-lg">Tarjetas</span>
       </button>
 
-      {/* ── Card Preview ───────────────────────────── */}
+      {!loadingCount && isAtLimit && (
+        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <AlertTriangle className="w-6 h-6 text-amber-500 flex-shrink-0" />
+          <p className="text-amber-800 text-sm font-medium">
+            Ya tenés el máximo de {MAX_CARDS} tarjetas asociadas. Eliminá una para poder agregar otra.
+          </p>
+        </div>
+      )}
+
       <CardPreview number={liveNumber} name={liveName} expiry={liveExpiry} />
 
-      {/* ── Form ───────────────────────────────────── */}
+      {liveNumber.replace(/\D/g, "").length >= 2 && (
+        <div className="text-center">
+          <span className="text-sm font-medium text-zinc-500">
+            Tipo de tarjeta:{" "}
+            <span className="font-bold text-black">
+              {getBrandLabel(detectCardBrand(liveNumber)) || "Desconocida"}
+            </span>
+          </span>
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-4 w-full"
       >
-        {/* Number */}
+        
         <div className="flex flex-col gap-1">
           <input
             placeholder="Número de la tarjeta*"
@@ -233,7 +298,6 @@ export default function NewCardPage() {
           )}
         </div>
 
-        {/* Name */}
         <div className="flex flex-col gap-1">
           <input
             placeholder="Nombre y apellido*"
@@ -250,7 +314,6 @@ export default function NewCardPage() {
           )}
         </div>
 
-        {/* Expiry + CVV */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
             <input
@@ -287,12 +350,11 @@ export default function NewCardPage() {
           <p className="text-dmh-error text-sm text-center">{apiError}</p>
         )}
 
-        {/* Submit */}
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isAtLimit}
           className={`h-12 w-full sm:w-auto sm:self-end sm:px-16 font-bold text-black transition-all duration-300 ${
-            hasAnyInput
+            hasAnyInput && !isAtLimit
               ? "bg-primary hover:bg-primary-hover"
               : "bg-zinc-300 hover:bg-zinc-400 cursor-default"
           }`}

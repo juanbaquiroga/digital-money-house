@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
 
 type PeriodOption =
   | "today"
@@ -13,6 +12,8 @@ type PeriodOption =
   | "custom"
   | null;
 
+type OperationType = "all" | "income" | "expense";
+
 interface DateRange {
   from: Date | null;
   to: Date | null;
@@ -21,8 +22,9 @@ interface DateRange {
 interface ActivityFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onApply: (range: DateRange) => void;
+  onApply: (range: DateRange, operationType: OperationType) => void;
   currentPeriod: PeriodOption;
+  currentOperationType?: OperationType;
 }
 
 const PERIOD_OPTIONS: { value: PeriodOption; label: string }[] = [
@@ -33,6 +35,12 @@ const PERIOD_OPTIONS: { value: PeriodOption; label: string }[] = [
   { value: "last_month", label: "Último mes" },
   { value: "last_year", label: "Último año" },
   { value: "custom", label: "Otro período" },
+];
+
+const OPERATION_OPTIONS: { value: OperationType; label: string }[] = [
+  { value: "all", label: "Todas" },
+  { value: "income", label: "Ingresos" },
+  { value: "expense", label: "Egresos" },
 ];
 
 function getDateRange(period: PeriodOption): DateRange {
@@ -77,8 +85,10 @@ export function ActivityFilterModal({
   onClose,
   onApply,
   currentPeriod,
+  currentOperationType = "all",
 }: ActivityFilterModalProps) {
   const [selected, setSelected] = useState<PeriodOption>(currentPeriod);
+  const [operationType, setOperationType] = useState<OperationType>(currentOperationType);
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
 
@@ -86,43 +96,47 @@ export function ActivityFilterModal({
 
   const handleApply = () => {
     if (selected === "custom") {
-      onApply({
-        from: customFrom ? new Date(customFrom) : null,
-        to: customTo ? new Date(customTo + "T23:59:59") : null,
-      });
+      onApply(
+        {
+          from: customFrom ? new Date(customFrom) : null,
+          to: customTo ? new Date(customTo + "T23:59:59") : null,
+        },
+        operationType
+      );
     } else if (selected) {
-      onApply(getDateRange(selected));
+      onApply(getDateRange(selected), operationType);
+    } else {
+      
+      onApply({ from: null, to: null }, operationType);
     }
     onClose();
   };
 
   const handleClear = () => {
     setSelected(null);
+    setOperationType("all");
     setCustomFrom("");
     setCustomTo("");
-    onApply({ from: null, to: null });
+    onApply({ from: null, to: null }, "all");
     onClose();
   };
 
+  const hasFilters = selected !== null || operationType !== "all";
+
   return (
     <>
-      {/* Backdrop */}
+      
       <div
         className="fixed inset-0 bg-black/40 z-40 md:bg-transparent"
         onClick={onClose}
       />
 
-      {/* Panel */}
       <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl p-6 pb-8 max-h-[85vh] overflow-y-auto
         md:absolute md:inset-auto md:top-full md:right-0 md:mt-2 md:rounded-2xl md:w-[360px] md:shadow-xl md:border md:border-zinc-200">
-        
-        {/* Header */}
+
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-black flex items-center gap-2">
-            Período
-            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="mt-0.5">
-              <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
+          <h3 className="text-lg font-bold text-black">
+            Filtros
           </h3>
           <button
             onClick={handleClear}
@@ -132,7 +146,34 @@ export function ActivityFilterModal({
           </button>
         </div>
 
-        {/* Options */}
+        <div className="mb-6">
+          <h4 className="text-sm font-bold text-zinc-700 mb-3 uppercase tracking-wide">
+            Tipo de operación
+          </h4>
+          <div className="flex gap-2">
+            {OPERATION_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setOperationType(option.value)}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 border ${
+                  operationType === option.value
+                    ? "bg-primary text-black border-primary"
+                    : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <h4 className="text-sm font-bold text-zinc-700 mb-3 uppercase tracking-wide flex items-center gap-2">
+          Período
+          <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="mt-0.5">
+            <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </h4>
+
         <div className="flex flex-col">
           {PERIOD_OPTIONS.map((option) => (
             <div key={option.value}>
@@ -170,7 +211,6 @@ export function ActivityFilterModal({
                 )}
               </button>
 
-              {/* Custom date pickers */}
               {option.value === "custom" && selected === "custom" && (
                 <div className="flex flex-col gap-3 py-3 pl-2">
                   <div className="flex flex-col gap-1">
@@ -197,13 +237,12 @@ export function ActivityFilterModal({
           ))}
         </div>
 
-        {/* Apply button */}
         <button
           onClick={handleApply}
-          disabled={!selected}
+          disabled={!hasFilters}
           className={`w-full mt-6 py-3.5 rounded-xl font-bold text-base transition-all duration-200
             ${
-              selected
+              hasFilters
                 ? "bg-primary text-black hover:bg-primary-hover shadow-md"
                 : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
             }`}
@@ -215,4 +254,4 @@ export function ActivityFilterModal({
   );
 }
 
-export type { PeriodOption, DateRange };
+export type { PeriodOption, DateRange, OperationType };

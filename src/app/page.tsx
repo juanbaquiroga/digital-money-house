@@ -19,13 +19,11 @@ export default function Home() {
   return (
     <div className="flex flex-col flex-1 relative">
 
-      {/* ── Hero bg image ───────────────────────────────────────── */}
       <div
         aria-hidden="true"
         className="absolute top-0 inset-x-0 h-[58vh] bg-[url('/landing/image.png')] bg-cover bg-center"
       />
 
-      {/* ── Hero text ───────────────────────────────────────────── */}
       <div className="relative z-10 flex flex-col justify-start px-[5%] md:px-[8%] lg:px-[12%] pt-[8vh] md:pt-[12vh] lg:pt-[16vh] pb-[5vh] md:pb-[8vh] lg:pb-[10vh]">
         <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-white leading-tight font-normal max-w-[55%] sm:max-w-md lg:max-w-xl">
           De ahora en adelante, hacés más con tu dinero
@@ -36,12 +34,10 @@ export default function Home() {
         </h2>
       </div>
 
-      {/* ── Cards & green section ───────────────────────────────── */}
       <section className="relative flex-1 pb-[6vh]">
-        {/* Green box */}
+        
         <div className="absolute inset-0 bg-primary rounded-t-[2.5rem] z-0" />
 
-        {/* Cards */}
         <div className="relative z-10 max-w-6xl mx-auto w-full px-[4%] md:px-[5%] pt-[4%] md:pt-[3%]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-8 w-full">
             {LANDING_FEATURES.map((feature) => (

@@ -8,7 +8,6 @@ import { useProfileStore } from "@/store/profileStore";
 import { accountService } from "@/services/accountService";
 import { Transaction } from "@/types";
 
-/** Format date like "17 de agosto 2022 a 16:34 hs." */
 function formatDetailDate(dateStr: string): string {
   const date = new Date(dateStr);
   const months = [
@@ -24,7 +23,6 @@ function formatDetailDate(dateStr: string): string {
   return `Creada el ${day} de ${month} ${year} a ${hours}:${minutes} hs.`;
 }
 
-/** Format amount like $1.266,57 */
 function formatCurrency(amount: number): string {
   const abs = Math.abs(amount);
   return (
@@ -36,7 +34,6 @@ function formatCurrency(amount: number): string {
   );
 }
 
-/** Derive a human-readable description of the transaction type */
 function getTransactionTypeLabel(tx: Transaction): string {
   if (tx.type === "Deposit" || tx.type === "deposit") {
     return "Depósito de dinero";
@@ -47,18 +44,15 @@ function getTransactionTypeLabel(tx: Transaction): string {
   return tx.type || "Transacción";
 }
 
-/** Derive the destination label */
 function getDestinationLabel(tx: Transaction): string | null {
   if (!tx.destination && !tx.description) return null;
 
-  // If description starts with common patterns, extract the name
   const desc = tx.description || "";
   const transferMatch = desc.match(
     /(?:Transferiste a|Transferencia a|Le transferiste a)\s+(.+)/i
   );
   if (transferMatch) return transferMatch[1];
 
-  // Use destination CVU/alias or description as fallback
   return tx.destination || desc;
 }
 
@@ -98,7 +92,6 @@ export default function ActivityDetailPage() {
   const handleDownloadReceipt = () => {
     if (!transaction) return;
 
-    // Build a simple text receipt and trigger download
     const typeLabel = getTransactionTypeLabel(transaction);
     const dest = getDestinationLabel(transaction);
     const dateLabel = formatDetailDate(transaction.dated);
@@ -171,7 +164,7 @@ Número de operación: ${transaction.id}
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6">
-      {/* ── Breadcrumb ── */}
+      
       <div className="flex items-center gap-2">
         <Link
           href="/activity"
@@ -184,12 +177,11 @@ Número de operación: ${transaction.id}
         </h1>
       </div>
 
-      {/* ── Transaction Detail Card ── */}
       <div
         ref={receiptRef}
         className="bg-secondary-bg rounded-[1.25rem] p-6 sm:p-8 flex flex-col gap-4 shadow-lg"
       >
-        {/* Status row */}
+        
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-2">
             <CheckCircle className="h-6 w-6 text-primary" />
@@ -202,7 +194,6 @@ Número de operación: ${transaction.id}
 
         <hr className="border-zinc-600" />
 
-        {/* Type & Amount */}
         <div className="flex flex-col gap-1 mt-2">
           <span className="text-white font-bold text-base">{typeLabel}</span>
           <span className="text-primary font-bold text-2xl sm:text-3xl">
@@ -210,7 +201,6 @@ Número de operación: ${transaction.id}
           </span>
         </div>
 
-        {/* Destination */}
         {destination && (
           <div className="flex flex-col gap-0.5 mt-2">
             <span className="text-zinc-400 text-sm">Le transferiste a</span>
@@ -220,7 +210,6 @@ Número de operación: ${transaction.id}
           </div>
         )}
 
-        {/* Operation number */}
         <div className="flex flex-col gap-0.5 mt-2">
           <span className="text-zinc-400 text-sm">Número de operación</span>
           <span className="text-primary font-medium text-base">
@@ -229,7 +218,6 @@ Número de operación: ${transaction.id}
         </div>
       </div>
 
-      {/* ── Action Buttons ── */}
       <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 sm:justify-end">
         <button
           id="btn-go-home"

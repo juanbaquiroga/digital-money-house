@@ -14,7 +14,7 @@ export default function DepositSuccessPage() {
   const { account } = useProfileStore();
 
   useEffect(() => {
-    // If no transaction found, go back home
+    
     if (!lastTransaction) {
       router.push("/home");
     }
@@ -53,13 +53,11 @@ Gracias por usar Digital Money House.
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6 text-black pb-20 sm:pb-10">
-      
-      {/* breadcrumb mockup placeholder or just text */}
+
       <div className="flex items-center gap-2 text-black self-start mb-2">
          <span className="font-bold border-b-2 border-black">Cargar dinero</span>
       </div>
 
-      {/* --- Success Banner --- */}
       <div className="bg-primary rounded-[1.25rem] p-8 sm:p-12 flex flex-col items-center justify-center gap-4 text-center shadow-lg">
           <div className="w-16 h-16 rounded-full border-4 border-black flex items-center justify-center">
               <Check className="w-10 h-10 text-black stroke-[3px]" />
@@ -69,7 +67,6 @@ Gracias por usar Digital Money House.
           </h2>
       </div>
 
-      {/* --- Summary Card --- */}
       <div className="bg-secondary-bg rounded-[1.25rem] p-6 sm:p-10 shadow-sm flex flex-col gap-6 text-white">
 
         <div className="flex flex-col gap-4">
@@ -106,7 +103,6 @@ Gracias por usar Digital Money House.
         </div>
       </div>
 
-      {/* --- Actions --- */}
       <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 sm:justify-end mt-2">
           <Button 
             onClick={handleGoHome}

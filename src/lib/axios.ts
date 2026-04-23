@@ -9,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// ── Request Interceptor: inject token ────────────────────────────────────────
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
@@ -21,22 +20,17 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ── Response Interceptor: catch 401 → purge session → redirect ───────────────
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Purge client state
+      
       useAuthStore.getState().logout();
 
-      // Delete server-side cookie
       try {
         await logoutAction();
-      } catch {
-        // Server action may fail if already logged out — ignore
-      }
+      } catch {}
 
-      // Force hard redirect to login (works from any context)
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }

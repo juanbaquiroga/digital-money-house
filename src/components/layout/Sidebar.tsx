@@ -32,7 +32,8 @@ export function Sidebar() {
     <aside className="hidden md:flex flex-col w-64 lg:w-72 bg-primary min-h-[calc(100vh-4rem-4rem)] p-8">
       <nav className="flex flex-col gap-6">
         {navLinks.map((link) => {
-          const isActive = pathname === link.href;
+          const isActive =
+            pathname === link.href || pathname.startsWith(link.href + "/");
           return (
             <Link
               key={link.href}

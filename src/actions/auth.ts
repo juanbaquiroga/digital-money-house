@@ -6,7 +6,6 @@ const API_BASE = "https://digitalmoney.digitalhouse.com";
 const COOKIE_NAME = "dmh-token";
 const PROBE_PASSWORD = "_dmh_probe_!1A";
 
-// ── Login ────────────────────────────────────────────────────────────────────
 export async function loginAction(
   email: string,
   password: string
@@ -32,14 +31,13 @@ export async function loginAction(
     const data = await res.json();
     const token: string = data.token;
 
-    // Store token in HttpOnly cookie
     const cookieStore = await cookies();
     cookieStore.set(COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7, 
     });
 
     return { success: true, token };
@@ -48,7 +46,6 @@ export async function loginAction(
   }
 }
 
-// ── Probe user existence ─────────────────────────────────────────────────────
 export async function probeUserAction(
   email: string
 ): Promise<{ exists: boolean; error?: string }> {
@@ -64,8 +61,7 @@ export async function probeUserAction(
     if (status === 404) {
       return { exists: false, error: "No encontramos una cuenta con ese correo electrónico." };
     }
-    // 401/403 means user exists but password is wrong (expected with probe)
-    // 200 means the probe password matched (unlikely but harmless)
+
     if (status === 401 || status === 403 || res.ok) {
       return { exists: true };
     }
@@ -76,7 +72,6 @@ export async function probeUserAction(
   }
 }
 
-// ── Signup ────────────────────────────────────────────────────────────────────
 export async function signupAction(payload: {
   firstname: string;
   lastname: string;
@@ -106,13 +101,11 @@ export async function signupAction(payload: {
   }
 }
 
-// ── Logout ───────────────────────────────────────────────────────────────────
 export async function logoutAction(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
 }
 
-// ── Get token from cookie (for client hydration) ─────────────────────────────
 export async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(COOKIE_NAME)?.value ?? null;

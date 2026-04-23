@@ -46,8 +46,7 @@ export default function SelectCardPage() {
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6 text-black">
-      
-      {/* breadcrumb */}
+
       <Link 
         href="/deposit"
         className="flex items-center gap-2 text-black hover:text-primary transition-colors self-start"
@@ -61,7 +60,6 @@ export default function SelectCardPage() {
           Seleccionar tarjeta
         </h2>
 
-        {/* --- Card List Card --- */}
         <div className="bg-white rounded-xl p-4 sm:p-6 flex flex-col gap-0 divide-y divide-zinc-100">
             <h3 className="text-black font-bold text-lg mb-4">Tus tarjetas</h3>
             
@@ -95,7 +93,6 @@ export default function SelectCardPage() {
         </div>
       </div>
 
-      {/* --- Nueva tarjeta + Continuar (outside dark card, same row on desktop) --- */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Link 
             href="/cards/new"
@@ -115,7 +112,6 @@ export default function SelectCardPage() {
           Continuar
         </Button>
       </div>
-
 
     </div>
   );

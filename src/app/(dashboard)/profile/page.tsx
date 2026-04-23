@@ -12,7 +12,7 @@ export default function ProfilePage() {
   const { user, account, isLoading } = useProfileStore();
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [editValue, setEditValue] = useState("");
-  const [editValue2, setEditValue2] = useState(""); // for lastname or confirmPassword
+  const [editValue2, setEditValue2] = useState(""); 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<"cvu" | "alias" | null>(null);
@@ -98,7 +98,7 @@ export default function ProfilePage() {
       }
 
       const updatedUser = await userService.updateUser(account.user_id, updatePayload);
-      // Update the profileStore with new data
+      
       useProfileStore.setState({ user: updatedUser });
       handleCancelEdit();
     } catch {
@@ -113,9 +113,7 @@ export default function ProfilePage() {
       await navigator.clipboard.writeText(text);
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
-    } catch {
-      // Fallback for older browsers
-    }
+    } catch {}
   };
 
   if (isLoading || !user || !account) {
@@ -161,13 +159,12 @@ export default function ProfilePage() {
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6">
-      {/* ── Breadcrumb ──────────────────────────────── */}
+      
       <div className="flex items-center gap-2 text-black md:hidden">
         <ArrowRight className="w-5 h-5" />
         <span className="font-medium text-lg">Perfil</span>
       </div>
 
-      {/* ── Tus datos Card ────────────────────────────── */}
       <div className="bg-white rounded-[1.25rem] p-6 sm:p-8 shadow-sm">
         <h2 className="text-xl sm:text-2xl font-bold text-black mb-6">Tus datos</h2>
 
@@ -177,7 +174,7 @@ export default function ProfilePage() {
               key={field.label}
               className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-2"
             >
-              {/* Field editing mode */}
+              
               {editingField === field.fieldKey && field.fieldKey !== null ? (
                 <div className="flex flex-col gap-3 w-full">
                   <span className="text-sm font-semibold text-zinc-500">{field.label}</span>
@@ -246,8 +243,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ) : (
-                /* Field display mode */
-                <>
+                                <>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-8 flex-1">
                     <span className="text-sm sm:text-base font-semibold text-black sm:min-w-[10rem]">
                       {field.label}
@@ -272,7 +268,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* ── Gestioná los medios de pago ──────────── */}
       <Link
         href="/cards"
         className="flex items-center justify-between w-full bg-primary rounded-[1.25rem] px-6 py-5 sm:px-8 sm:py-6 shadow-sm group hover:bg-primary-hover transition-colors"
@@ -283,13 +278,11 @@ export default function ProfilePage() {
         <ArrowRight className="w-6 h-6 text-black" />
       </Link>
 
-      {/* ── CVU / Alias Card ─────────────────────── */}
       <div className="bg-secondary-bg rounded-[1.25rem] p-6 sm:p-8 shadow-sm flex flex-col gap-4">
         <p className="text-white text-sm sm:text-base font-medium">
           Copia tu cvu o alias para ingresar o transferir dinero desde otra cuenta
         </p>
 
-        {/* CVU Row */}
         <div className="flex items-center justify-between border-b border-zinc-700 pb-4">
           <div className="flex flex-col gap-1">
             <span className="text-primary font-bold text-base sm:text-lg">CVU</span>
@@ -310,7 +303,6 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* Alias Row */}
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <span className="text-primary font-bold text-base sm:text-lg">Alias</span>

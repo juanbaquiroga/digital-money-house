@@ -52,13 +52,12 @@ export default function CardsPage() {
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6">
-      {/* ── Breadcrumb ──────────────────────────────── */}
+      
       <div className="flex items-center gap-2 text-black md:hidden">
         <ArrowRight className="w-5 h-5" />
         <span className="font-medium text-lg">Tarjetas</span>
       </div>
 
-      {/* ── New Card CTA ───────────────────────────── */}
       <Link
         href="/cards/new"
         className="bg-secondary-bg rounded-[1.25rem] p-6 sm:p-8 flex flex-col gap-4 shadow-sm hover:bg-background transition-colors group"
@@ -79,7 +78,6 @@ export default function CardsPage() {
         </div>
       </Link>
 
-      {/* ── Card List ──────────────────────────────── */}
       <div className="bg-white rounded-[1.25rem] p-6 sm:p-8 shadow-sm">
         <h2 className="text-xl font-bold text-black mb-4">Tus tarjetas</h2>
 

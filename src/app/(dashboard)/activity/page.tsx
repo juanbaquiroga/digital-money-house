@@ -1,19 +1,20 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useProfileStore } from "@/store/profileStore";
-import { Search, SlidersHorizontal, ArrowRight } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowRight, X } from "lucide-react";
 import { Pagination } from "@/components/ui/Pagination";
 import {
   ActivityFilterModal,
   type PeriodOption,
   type DateRange,
+  type OperationType,
 } from "@/components/activity/ActivityFilterModal";
 
 const ITEMS_PER_PAGE = 10;
 
-/** Format a date to a relative day name in Spanish */
 function formatRelativeDay(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
@@ -38,22 +39,23 @@ function formatRelativeDay(dateStr: string): string {
   return dayNames[date.getDay()];
 }
 
-export default function ActivityPage() {
+function ActivityContent() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
   const { activity, isLoading, account } = useProfileStore();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [currentPage, setCurrentPage] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
   const [activePeriod, setActivePeriod] = useState<PeriodOption>(null);
+  const [operationType, setOperationType] = useState<OperationType>("all");
   const [dateRange, setDateRange] = useState<DateRange>({
     from: null,
     to: null,
   });
 
-  // Filter by search term + date range
   const filteredActivity = useMemo(() => {
     let result = [...activity];
 
-    // Search filter
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
@@ -63,7 +65,6 @@ export default function ActivityPage() {
       );
     }
 
-    // Date range filter
     if (dateRange.from || dateRange.to) {
       result = result.filter((tx) => {
         const txDate = new Date(tx.dated);
@@ -73,13 +74,28 @@ export default function ActivityPage() {
       });
     }
 
-    // Sort by date descending (newest first)
+    if (operationType === "income") {
+      result = result.filter(
+        (tx) =>
+          tx.type === "Deposit" ||
+          tx.type === "deposit" ||
+          tx.amount > 0
+      );
+    } else if (operationType === "expense") {
+      result = result.filter(
+        (tx) =>
+          tx.type !== "Deposit" &&
+          tx.type !== "deposit" &&
+          tx.amount <= 0
+      );
+    }
+
     result.sort(
       (a, b) => new Date(b.dated).getTime() - new Date(a.dated).getTime()
     );
 
     return result;
-  }, [activity, searchTerm, dateRange]);
+  }, [activity, searchTerm, dateRange, operationType]);
 
   const totalPages = Math.ceil(filteredActivity.length / ITEMS_PER_PAGE);
   const paginatedActivity = filteredActivity.slice(
@@ -87,8 +103,9 @@ export default function ActivityPage() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleFilterApply = (range: DateRange) => {
+  const handleFilterApply = (range: DateRange, opType: OperationType) => {
     setDateRange(range);
+    setOperationType(opType);
     setCurrentPage(1);
   };
 
@@ -115,7 +132,7 @@ export default function ActivityPage() {
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-4 sm:gap-6">
-      {/* ── Breadcrumb ── */}
+      
       <div className="flex items-center gap-2">
         <Link
           href="/home"
@@ -128,7 +145,6 @@ export default function ActivityPage() {
         </h1>
       </div>
 
-      {/* ── Search Bar + Filter Button ── */}
       <div className="flex flex-col sm:flex-row gap-3 relative">
         <div className="relative flex-1 shadow-sm rounded-xl">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -140,18 +156,26 @@ export default function ActivityPage() {
             placeholder="Buscar en tu actividad"
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
-            className="block w-full pl-11 pr-3 py-4 border border-zinc-200 rounded-xl leading-5 bg-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-lg text-black"
+            className="block w-full pl-11 pr-10 py-4 border border-zinc-200 rounded-xl leading-5 bg-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-lg text-black"
           />
+          {searchTerm && (
+            <button
+              onClick={() => handleSearch("")}
+              className="absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-400 hover:text-black transition-colors"
+              aria-label="Limpiar búsqueda"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
         </div>
 
-        {/* Filter button — desktop only (hidden on mobile, shown inside card instead) */}
         <div className="relative hidden sm:block">
           <button
             id="activity-filter-btn"
             onClick={() => setFilterOpen(!filterOpen)}
             className={`flex items-center gap-2 px-6 py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-200 shadow-sm whitespace-nowrap
               ${
-                activePeriod
+                activePeriod || operationType !== "all"
                   ? "bg-primary text-black hover:bg-primary-hover"
                   : "bg-secondary-bg text-white hover:bg-zinc-700"
               }`}
@@ -160,31 +184,31 @@ export default function ActivityPage() {
             <SlidersHorizontal className="h-5 w-5" />
           </button>
 
-          {/* Filter modal - positioned relative to button on desktop */}
           <ActivityFilterModal
             isOpen={filterOpen}
             onClose={() => setFilterOpen(false)}
-            onApply={(range) => {
-              handleFilterApply(range);
-              // Track which period is active for button styling
+            onApply={(range, opType) => {
+              handleFilterApply(range, opType);
+              
               if (!range.from && !range.to) {
                 setActivePeriod(null);
               }
             }}
             currentPeriod={activePeriod}
+            currentOperationType={operationType}
           />
         </div>
       </div>
 
-      {/* ── Activity List Card ── */}
       <div className="bg-white rounded-[1.25rem] p-4 sm:p-6 shadow-sm flex flex-col">
         <h3 className="text-black font-bold text-lg mb-2 border-b border-zinc-200 pb-4 flex items-center justify-between">
           <span>Tu actividad</span>
           <div className="flex items-center gap-2">
-            {activePeriod && (
+            {(activePeriod || operationType !== "all") && (
               <button
                 onClick={() => {
                   setActivePeriod(null);
+                  setOperationType("all");
                   setDateRange({ from: null, to: null });
                   setCurrentPage(1);
                 }}
@@ -193,13 +217,13 @@ export default function ActivityPage() {
                 Limpiar filtro
               </button>
             )}
-            {/* Filter button — mobile only (inside card header) */}
+            
             <div className="relative sm:hidden">
               <button
                 onClick={() => setFilterOpen(!filterOpen)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all duration-200
                   ${
-                    activePeriod
+                    activePeriod || operationType !== "all"
                       ? "text-primary"
                       : "text-black"
                   }`}
@@ -211,13 +235,14 @@ export default function ActivityPage() {
               <ActivityFilterModal
                 isOpen={filterOpen}
                 onClose={() => setFilterOpen(false)}
-                onApply={(range) => {
-                  handleFilterApply(range);
+                onApply={(range, opType) => {
+                  handleFilterApply(range, opType);
                   if (!range.from && !range.to) {
                     setActivePeriod(null);
                   }
                 }}
                 currentPeriod={activePeriod}
+                currentOperationType={operationType}
               />
             </div>
           </div>
@@ -265,7 +290,6 @@ export default function ActivityPage() {
           </ul>
         )}
 
-        {/* Pagination */}
         <Pagination
           totalPages={totalPages}
           currentPage={currentPage}
@@ -273,5 +297,17 @@ export default function ActivityPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function ActivityPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 sm:p-10 text-black flex flex-col gap-6 w-full max-w-5xl mx-auto">
+        <h1 className="text-xl font-bold">Cargando tu actividad...</h1>
+      </div>
+    }>
+      <ActivityContent />
+    </Suspense>
   );
 }

@@ -29,8 +29,7 @@ export default function DepositTransferPage() {
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6 text-black">
-      
-      {/* --- Breadcrumb --- */}
+
       <Link 
         href="/deposit"
         className="flex items-center gap-2 text-black hover:text-primary transition-colors self-start"
@@ -39,13 +38,11 @@ export default function DepositTransferPage() {
         <span className="font-medium text-lg">Cargar dinero</span>
       </Link>
 
-      {/* --- CVU / Alias Card --- */}
       <div className="bg-secondary-bg rounded-[1.25rem] p-6 sm:p-8 shadow-sm flex flex-col gap-6">
         <p className="text-white text-base sm:text-lg font-medium">
           Copia tu cvu o alias para ingresar o transferir dinero desde otra cuenta
         </p>
 
-        {/* CVU Row */}
         <div className="flex items-center justify-between border-b border-zinc-700 pb-6">
           <div className="flex flex-col gap-1">
             <span className="text-primary font-bold text-lg sm:text-xl">CVU</span>
@@ -66,7 +63,6 @@ export default function DepositTransferPage() {
           </button>
         </div>
 
-        {/* Alias Row */}
         <div className="flex items-center justify-between pb-2">
           <div className="flex flex-col gap-1">
             <span className="text-primary font-bold text-lg sm:text-xl">Alias</span>

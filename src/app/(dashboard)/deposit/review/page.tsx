@@ -39,7 +39,7 @@ export default function DepositReviewPage() {
       });
 
       setLastTransaction(tx);
-      // Refresh profile data to update balance
+      
       await fetchProfileData();
       router.push("/deposit/success");
     } catch (error) {
@@ -54,8 +54,7 @@ export default function DepositReviewPage() {
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6 text-black">
-      
-      {/* breadcrumb */}
+
       <Link 
         href="/deposit/select-card"
         className="flex items-center gap-2 text-black hover:text-primary transition-colors self-start"
@@ -70,7 +69,7 @@ export default function DepositReviewPage() {
         </h2>
 
         <div className="flex flex-col gap-4 text-white">
-          {/* Amount Box */}
+          
           <div className="flex items-center gap-4">
             <div className="flex flex-col">
                 <span className="text-sm sm:text-base">Vas a transferir</span>
@@ -105,7 +104,6 @@ export default function DepositReviewPage() {
           {isSubmitting ? "Procesando..." : "Continuar"}
         </Button>
       </div>
-
 
     </div>
   );

@@ -18,13 +18,13 @@ export function Header() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    // 1. Delete the HttpOnly cookie server-side
+    
     await logoutAction();
-    // 2. Purge client state
+    
     logout();
     clearProfile();
     setMobileMenuOpen(false);
-    // 3. Redirect to landing
+    
     router.push("/");
   };
 
@@ -49,7 +49,6 @@ export function Header() {
           <Image src="/Logo.png" alt="Digital Money House" width={80} height={30} className="object-contain" />
         </Link>
 
-        {/* --- Logged Out View --- */}
         {!token && (
           <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/login">
@@ -68,7 +67,6 @@ export function Header() {
           </div>
         )}
 
-        {/* --- Logged In View --- */}
         {token && (
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -91,7 +89,6 @@ export function Header() {
         )}
       </header>
 
-      {/* --- Mobile Sidebar Overlay --- */}
       {token && mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-[60] bg-secondary-bg flex flex-col">
           <div className="h-16 bg-background px-4 flex items-center justify-between shadow-sm flex-shrink-0">

@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { Account, Transaction, TransferenceRequest } from "@/types";
+import { Account, Transaction, TransferenceRequest, TransactionRequest } from "@/types";
 
 export const accountService = {
   getAccount: async (): Promise<Account> => {
@@ -20,5 +20,10 @@ export const accountService = {
   createDeposit: async (accountId: number, data: TransferenceRequest): Promise<Transaction> => {
     const response = await api.post<Transaction>(`/api/accounts/${accountId}/deposits`, data);
     return response.data;
-  }
+  },
+
+  createTransaction: async (accountId: number, data: TransactionRequest): Promise<Transaction> => {
+    const response = await api.post<Transaction>(`/api/accounts/${accountId}/transactions`, data);
+    return response.data;
+  },
 };

@@ -9,7 +9,6 @@ interface PaginationProps {
 export function Pagination({ totalPages, currentPage, onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  // Determine which page numbers to display
   const getVisiblePages = (): number[] => {
     const pages: number[] = [];
     const maxVisible = 8;
@@ -17,13 +16,12 @@ export function Pagination({ totalPages, currentPage, onPageChange }: Pagination
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
-      // Always show first page
+      
       pages.push(1);
 
       let start = Math.max(2, currentPage - 2);
       let end = Math.min(totalPages - 1, currentPage + 2);
 
-      // Adjust range if near edges
       if (currentPage <= 3) {
         end = Math.min(maxVisible - 1, totalPages - 1);
       }
@@ -31,11 +29,10 @@ export function Pagination({ totalPages, currentPage, onPageChange }: Pagination
         start = Math.max(2, totalPages - maxVisible + 2);
       }
 
-      if (start > 2) pages.push(-1); // ellipsis
+      if (start > 2) pages.push(-1); 
       for (let i = start; i <= end; i++) pages.push(i);
-      if (end < totalPages - 1) pages.push(-2); // ellipsis
+      if (end < totalPages - 1) pages.push(-2); 
 
-      // Always show last page
       pages.push(totalPages);
     }
 

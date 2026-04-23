@@ -47,7 +47,7 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormValues) => {
     setApiError(null);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    
     const { confirmPassword, ...payload } = data;
 
     const result = await signupAction(payload);
@@ -59,7 +59,6 @@ export default function RegisterPage() {
     }
   };
 
-  // ── Success screen ──────────────────────────────────────────────────────────
   if (registered) {
     return (
       <div className="flex-1 w-full bg-secondary-bg flex items-center justify-center p-4">
@@ -101,7 +100,6 @@ export default function RegisterPage() {
     );
   }
 
-  // ── Registration form ───────────────────────────────────────────────────────
   return (
     <div className="flex-1 w-full bg-secondary-bg flex items-center justify-center p-4">
       <div className="w-full max-w-2xl flex flex-col gap-6 items-center">

@@ -6,8 +6,7 @@ import { UserCircle, CreditCard, ArrowRight } from "lucide-react";
 export default function DepositPage() {
   return (
     <div className="w-full h-full flex flex-col px-4 py-8 sm:px-8 sm:py-12 max-w-5xl mx-auto gap-8">
-      
-      {/* Option 1: Transfer */}
+
       <Link 
         href="/deposit/transfer"
         className="w-full bg-secondary-bg rounded-[1.25rem] p-8 sm:p-12 flex items-center justify-between group shadow-xl hover:bg-neutral-800 transition-all duration-300 transform hover:-translate-y-1"
@@ -21,7 +20,6 @@ export default function DepositPage() {
         <ArrowRight className="w-8 h-8 text-primary group-hover:translate-x-2 transition-all" />
       </Link>
 
-      {/* Option 2: Select Card */}
       <Link 
         href="/deposit/select-card"
         className="w-full bg-secondary-bg rounded-[1.25rem] p-8 sm:p-12 flex items-center justify-between group shadow-xl hover:bg-neutral-800 transition-all duration-300 transform hover:-translate-y-1"

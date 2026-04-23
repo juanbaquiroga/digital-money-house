@@ -13,12 +13,10 @@ export default function DashboardLayout({
   const { token, isHydrated, hydrateSession } = useAuthStore();
   const { fetchProfileData, account, isLoading } = useProfileStore();
 
-  // Hydrate the token from the HttpOnly cookie on mount / page reload
   useEffect(() => {
     hydrateSession();
   }, [hydrateSession]);
 
-  // Fetch profile data once the token is available
   useEffect(() => {
     if (isHydrated && token && !account && !isLoading) {
       fetchProfileData();

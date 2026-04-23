@@ -43,7 +43,7 @@ export default function LoginPasswordPage() {
     const result = await loginAction(loginEmail, data.password);
 
     if (result.success && result.token) {
-      // Store a copy of the token in Zustand for Axios interceptor
+      
       setToken(result.token);
       router.push("/home");
     } else {

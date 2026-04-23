@@ -28,8 +28,7 @@ export default function DepositAmountPage() {
 
   return (
     <div className="w-full h-full flex flex-col px-4 py-6 sm:px-8 sm:py-10 max-w-5xl mx-auto gap-6 text-black">
-      
-      {/* breadcrumb */}
+
       <Link 
         href="/deposit/select-card"
         className="flex items-center gap-2 text-black hover:text-primary transition-colors self-start"
@@ -63,7 +62,6 @@ export default function DepositAmountPage() {
           Continuar
         </Button>
       </div>
-
 
     </div>
   );

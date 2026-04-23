@@ -57,3 +57,22 @@ export interface TransferenceRequest {
   destination: string;
   origin: string;
 }
+
+export interface Service {
+  id: number;
+  name: string;
+  date: string;
+}
+
+export interface Company {
+  id: number;
+  name: string;
+  date: string;
+  invoice_value: number;
+}
+
+export interface TransactionRequest {
+  amount: number;
+  dated: string;
+  description: string;
+}

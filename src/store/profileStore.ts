@@ -23,11 +23,10 @@ export const useProfileStore = create<ProfileState>((set) => ({
   fetchProfileData: async () => {
     set({ isLoading: true, error: null });
     try {
-      // 1. Fetch Account to get user_id & account_id
+      
       const account = await accountService.getAccount();
       set({ account });
-      
-      // 2. Fetch User and Activity concurrently
+
       const [user, activity] = await Promise.all([
         userService.getUser(account.user_id),
         accountService.getActivity(account.id)

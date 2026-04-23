@@ -21,7 +21,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   logout: () => set({ token: null, loginEmail: null, isHydrated: false }),
 
   hydrateSession: async () => {
-    // Avoid re-hydrating if already done
+    
     if (get().isHydrated && get().token) return;
     try {
       const token = await getSessionToken();
